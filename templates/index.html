@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Todo List</title>
+</head>
+<body>
+    <h1>Todo List</h1>
+    
+    <a href="/create">[새 투두 만들기]</a>
+    <hr/>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th><th>Title</th><th>Completed</th><th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for todo in todos %}
+            <tr>
+                <td>{{ todo.id }}</td>
+                <td>{{ todo.title }}</td>
+                <td>{{ todo.completed }}</td>
+                <td>
+                    <a href="/todos/{{ todo.id }}">상세</a> |
+                    <a href="/update/{{ todo.id }}">수정</a> |
+                    <form action="/delete/{{ todo.id }}" method="POST" style="display:inline;">
+                        <button type="submit">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

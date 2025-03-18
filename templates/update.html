@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Todo Update</title>
+</head>
+<body>
+    <h1>투두 수정</h1>
+    <form action="/update/{{ todo.id }}" method="POST">
+        <p>
+            <label>ID: {{ todo.id }}</label>
+            <!-- ID 수정 불가능하다고 가정 -->
+        </p>
+        <p>
+            <label for="title">Title:</label><br/>
+            <input type="text" id="title" name="title" value="{{ todo.title }}" required/>
+        </p>
+        <p>
+            <label for="description">Description:</label><br/>
+            <input type="text" id="description" name="description" value="{{ todo.description }}"/>
+        </p>
+        <p>
+            <label for="completed">Completed:</label>
+            <input
+                type="checkbox"
+                id="completed"
+                name="completed"
+                value="true"
+                {% if todo.completed %}checked{% endif %}
+            />
+        </p>
+        <button type="submit">수정하기</button>
+    </form>
+
+    <hr/>
+    <a href="/">[메인으로]</a>
+</body>
+</html>

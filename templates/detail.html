@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Todo Detail</title>
+</head>
+<body>
+    <h1>Todo 상세보기</h1>
+
+    <p><b>ID:</b> {{ todo.id }}</p>
+    <p><b>Title:</b> {{ todo.title }}</p>
+    <p><b>Description:</b> {{ todo.description }}</p>
+    <p><b>Completed:</b> {{ todo.completed }}</p>
+
+    <hr>
+    <a href="/update/{{ todo.id }}">[수정하기]</a>
+    <form action="/delete/{{ todo.id }}" method="POST" style="display:inline;">
+        <button type="submit">[삭제하기]</button>
+    </form>
+    <br/>
+    <a href="/">[메인으로]</a>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Todo Create</title>
+</head>
+<body>
+    <h1>새 투두 작성</h1>
+    
+    {% if error_message %}
+    <p style="color:red;">{{ error_message }}</p>
+    {% endif %}
+    
+    <form action="/create" method="POST">
+        <p>
+            <label for="id">ID:</label><br/>
+            <input type="number" id="id" name="id" required/>
+        </p>
+        <p>
+            <label for="title">Title:</label><br/>
+            <input type="text" id="title" name="title" required/>
+        </p>
+        <p>
+            <label for="description">Description:</label><br/>
+            <input type="text" id="description" name="description"/>
+        </p>
+        <p>
+            <label for="completed">Completed:</label>
+            <input type="checkbox" id="completed" name="completed" value="true"/>
+        </p>
+        <button type="submit">저장하기</button>
+    </form>
+
+    <hr>
+    <a href="/">[메인으로]</a>
+</body>
+</html>
