@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8"/>
-    <title>Todo Update</title>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
     <style>
         body {
             margin: 0;
@@ -34,7 +34,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 2rem auto;
             padding: 1rem;
             background: white;
@@ -44,13 +44,18 @@
         h1 {
             margin-top: 0;
         }
+        .error {
+            color: red;
+        }
         label {
             font-weight: bold;
         }
         input[type="text"],
-        input[type="number"] {
+        input[type="password"],
+        input[type="email"] {
             width: 100%;
             max-width: 300px;
+            margin-bottom: 0.5rem;
         }
         button {
             cursor: pointer;
@@ -71,12 +76,11 @@
         a:hover {
             opacity: 0.8;
         }
-
     </style>
 </head>
 <body>
     <header>
-        <h1>투두 수정</h1>
+        <h1>회원가입</h1>
         <nav>
             {% if username %}
                 <span>안녕하세요, {{ username }}님</span>
@@ -86,38 +90,26 @@
                 <a href="/logout">로그아웃</a>
             {% else %}
                 <a href="/login">로그인</a>
-                <a href="/register">회원가입</a>
             {% endif %}
         </nav>
     </header>
 
     <div class="container">
-        <form action="/update/{{ todo.id }}" method="POST">
-            <p>
-                <label>ID: {{ todo.id }}</label>
-                <!-- ID는 수정 불가능하다고 가정 -->
-            </p>
-            <p>
-                <label for="title">Title:</label><br/>
-                <input type="text" id="title" name="title" value="{{ todo.title }}" required/>
-            </p>
-            <p>
-                <label for="description">Description:</label><br/>
-                <input type="text" id="description" name="description" value="{{ todo.description }}"/>
-            </p>
-            <p>
-                <label for="completed">Completed:</label>
-                <input
-                    type="checkbox"
-                    id="completed"
-                    name="completed"
-                    value="true"
-                    {% if todo.completed %}checked{% endif %}
-                />
-            </p>
-            <button type="submit">수정하기</button>
-        </form>
+        {% if error_message %}
+            <p class="error">{{ error_message }}</p>
+        {% endif %}
+        <form action="/register" method="POST">
+            <label for="username">Username:</label><br/>
+            <input type="text" id="username" name="username" required/><br/>
 
+            <label for="password">Password:</label><br/>
+            <input type="password" id="password" name="password" required/><br/>
+
+            <label for="email">Email:</label><br/>
+            <input type="email" id="email" name="email"/><br/>
+
+            <button type="submit">회원가입</button>
+        </form>
         <hr/>
         <a href="/">[메인으로]</a>
     </div>

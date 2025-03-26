@@ -17,11 +17,24 @@
             background: #5B8DEF;
             color: white;
             padding: 1rem;
-            text-align: center;
         }
-        
-        h1 {
+        header h1 {
             margin: 0;
+            display: inline-block;
+        }
+
+        /* 로그인/회원가입/로그아웃 등 헤더 메뉴 */
+        nav {
+            float: right;
+            margin-top: -2.2rem; /* 헤더 높이에 맞춰 위치 조정 (임의) */
+        }
+        nav a {
+            color: white;
+            margin-left: 1rem;
+            text-decoration: none;
+        }
+        nav a:hover {
+            opacity: 0.8;
         }
 
         /* 메인 컨테이너 */
@@ -51,17 +64,14 @@
             border-collapse: collapse;
             background: white;
         }
-
         thead {
             background: #f3f3f3;
         }
-
         th, td {
             text-align: center;
             padding: 0.75rem;
             border: 1px solid #ddd;
         }
-
         th {
             font-weight: bold;
         }
@@ -75,7 +85,6 @@
             border-radius: 4px;
             padding: 0.4rem 0.8rem;
         }
-
         button {
             background: #FF5757;
             color: white;
@@ -83,7 +92,6 @@
         button:hover {
             opacity: 0.9;
         }
-
         /* 상세/수정 링크 스타일 */
         a.button-style {
             background: #5B8DEF;
@@ -109,9 +117,21 @@
 <body>
     <header>
         <h1>Todo List</h1>
+        <nav>
+            {% if username %}
+                <span>안녕하세요, {{ username }}님</span>
+                |
+                <a href="/profile">프로필</a>
+                |
+                <a href="/logout">로그아웃</a>
+            {% else %}
+                <a href="/login">로그인</a>
+                <a href="/register">회원가입</a>
+            {% endif %}
+        </nav>
     </header>
-    <div class="container">
 
+    <div class="container">
         <a class="create-link" href="/create">[새 투두 만들기]</a>
         <hr/>
 

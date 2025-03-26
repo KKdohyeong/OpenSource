@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8"/>
-    <title>Todo Create</title>
+    <meta charset="UTF-8">
+    <title>프로필</title>
     <style>
         body {
             margin: 0;
@@ -34,30 +34,22 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 2rem auto;
             padding: 1rem;
             background: white;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .error {
-            color: red;
+        h1 {
+            margin-top: 0;
         }
-        label {
-            font-weight: bold;
+        .profile-info p {
+            margin: 0.5rem 0;
         }
-        button {
-            cursor: pointer;
-            margin-top: 1rem;
-            background: #5B8DEF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 0.5rem 1rem;
-        }
-        button:hover {
-            opacity: 0.9;
+        .profile-info b {
+            display: inline-block;
+            width: 80px;
         }
         a {
             text-decoration: none;
@@ -70,12 +62,10 @@
 </head>
 <body>
     <header>
-        <h1>새 투두 작성</h1>
+        <h1>프로필 페이지</h1>
         <nav>
             {% if username %}
                 <span>안녕하세요, {{ username }}님</span>
-                |
-                <a href="/profile">프로필</a>
                 |
                 <a href="/logout">로그아웃</a>
             {% else %}
@@ -86,30 +76,11 @@
     </header>
 
     <div class="container">
-        {% if error_message %}
-            <p class="error">{{ error_message }}</p>
-        {% endif %}
-        <form action="/create" method="POST">
-            <p>
-                <label for="id">ID:</label><br/>
-                <input type="number" id="id" name="id" required/>
-            </p>
-            <p>
-                <label for="title">Title:</label><br/>
-                <input type="text" id="title" name="title" required/>
-            </p>
-            <p>
-                <label for="description">Description:</label><br/>
-                <input type="text" id="description" name="description"/>
-            </p>
-            <p>
-                <label for="completed">Completed:</label>
-                <input type="checkbox" id="completed" name="completed" value="true"/>
-            </p>
-            <button type="submit">저장하기</button>
-        </form>
-
-        <hr>
+        <div class="profile-info">
+            <p><b>Username:</b> {{ user.username }}</p>
+            <p><b>Email:</b> {{ user.email if user.email else "없음" }}</p>
+        </div>
+        <hr/>
         <a href="/">[메인으로]</a>
     </div>
 </body>
