@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <title>Todo Detail</title>
+    <title>Todo 상세보기</title>
     <style>
         body {
             margin: 0;
@@ -32,39 +32,28 @@
         nav a:hover {
             opacity: 0.8;
         }
-
         .container {
             max-width: 800px;
             margin: 2rem auto;
-            padding: 1rem;
+            padding: 0 1rem;
+        }
+        .detail-box {
             background: white;
+            padding: 1rem;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        h1 {
-            margin-top: 0;
+        .detail-box p {
+            margin: 0.5rem 0;
         }
-        .btn {
-            display: inline-block;
-            margin-top: 1rem;
+        .button-style {
             background: #5B8DEF;
             color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 0.5rem 1rem;
             text-decoration: none;
-            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
         }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        form {
-            display: inline-block;
-        }
-        form button {
-            background: #FF5757;
-        }
-        form button:hover {
+        .button-style:hover {
             opacity: 0.9;
         }
     </style>
@@ -85,20 +74,20 @@
             {% endif %}
         </nav>
     </header>
-
     <div class="container">
-        <p><b>ID:</b> {{ todo.id }}</p>
-        <p><b>Title:</b> {{ todo.title }}</p>
-        <p><b>Description:</b> {{ todo.description }}</p>
-        <p><b>Completed:</b> {{ todo.completed }}</p>
-
-        <hr>
-        <a class="btn" href="/update/{{ todo.id }}">[수정하기]</a>
-        <form action="/delete/{{ todo.id }}" method="POST" style="display:inline;">
-            <button type="submit">[삭제하기]</button>
+        <div class="detail-box">
+            <p><strong>ID:</strong> {{ todo.id }}</p>
+            <p><strong>Title:</strong> {{ todo.title }}</p>
+            <p><strong>Description:</strong> {{ todo.description }}</p>
+            <p><strong>Completed:</strong> {{ todo.completed }}</p>
+        </div>
+        <br/>
+        <a class="button-style" href="/update/{{ todo.id }}">수정</a>
+        <form method="post" action="/delete/{{ todo.id }}" style="display:inline;">
+            <button type="submit">삭제</button>
         </form>
         <br/><br/>
-        <a href="/">[메인으로]</a>
+        <a class="button-style" href="/index">목록으로 돌아가기</a>
     </div>
 </body>
 </html>
