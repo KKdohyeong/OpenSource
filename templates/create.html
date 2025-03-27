@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <title>Todo Create</title>
+    <title>새 Todo 만들기</title>
     <style>
         body {
             margin: 0;
@@ -32,45 +32,60 @@
         nav a:hover {
             opacity: 0.8;
         }
-
         .container {
             max-width: 800px;
             margin: 2rem auto;
-            padding: 1rem;
+            padding: 0 1rem;
+        }
+        form {
             background: white;
+            padding: 1rem;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .error {
-            color: red;
-        }
         label {
-            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
         }
-        button {
-            cursor: pointer;
-            margin-top: 1rem;
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        input[type="submit"] {
             background: #5B8DEF;
             color: white;
             border: none;
-            border-radius: 4px;
             padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        button:hover {
+        input[type="submit"]:hover {
             opacity: 0.9;
         }
-        a {
+        .create-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #5B8DEF;
+            color: white;
             text-decoration: none;
-            color: #5B8DEF;
+            border-radius: 4px;
         }
-        a:hover {
-            opacity: 0.8;
+        .create-link:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>새 투두 작성</h1>
+        <h1>새 Todo 만들기</h1>
         <nav>
             {% if username %}
                 <span>안녕하세요, {{ username }}님</span>
@@ -84,33 +99,18 @@
             {% endif %}
         </nav>
     </header>
-
     <div class="container">
-        {% if error_message %}
-            <p class="error">{{ error_message }}</p>
-        {% endif %}
-        <form action="/create" method="POST">
-            <p>
-                <label for="id">ID:</label><br/>
-                <input type="number" id="id" name="id" required/>
-            </p>
-            <p>
-                <label for="title">Title:</label><br/>
-                <input type="text" id="title" name="title" required/>
-            </p>
-            <p>
-                <label for="description">Description:</label><br/>
-                <input type="text" id="description" name="description"/>
-            </p>
-            <p>
-                <label for="completed">Completed:</label>
-                <input type="checkbox" id="completed" name="completed" value="true"/>
-            </p>
-            <button type="submit">저장하기</button>
+        <form method="post" action="/create">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required/>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            
+            <input type="submit" value="생성"/>
         </form>
-
-        <hr>
-        <a href="/">[메인으로]</a>
+        <br/>
+        <a class="create-link" href="/index">목록으로 돌아가기</a>
     </div>
 </body>
 </html>

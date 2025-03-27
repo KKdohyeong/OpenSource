@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <title>Todo Update</title>
+    <title>Todo 수정</title>
     <style>
         body {
             margin: 0;
@@ -32,51 +32,62 @@
         nav a:hover {
             opacity: 0.8;
         }
-
         .container {
             max-width: 800px;
             margin: 2rem auto;
-            padding: 1rem;
+            padding: 0 1rem;
+        }
+        form {
             background: white;
+            padding: 1rem;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        h1 {
-            margin-top: 0;
-        }
         label {
-            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
         }
-        input[type="text"],
-        input[type="number"] {
+        input[type="text"], textarea {
             width: 100%;
-            max-width: 300px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        button {
-            cursor: pointer;
-            margin-top: 1rem;
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        input[type="submit"] {
             background: #5B8DEF;
             color: white;
             border: none;
-            border-radius: 4px;
             padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        button:hover {
+        input[type="submit"]:hover {
             opacity: 0.9;
         }
-        a {
+        .checkbox-label {
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .button-style {
+            background: #5B8DEF;
+            color: white;
             text-decoration: none;
-            color: #5B8DEF;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
         }
-        a:hover {
-            opacity: 0.8;
+        .button-style:hover {
+            opacity: 0.9;
         }
-
     </style>
 </head>
 <body>
     <header>
-        <h1>투두 수정</h1>
+        <h1>Todo 수정</h1>
         <nav>
             {% if username %}
                 <span>안녕하세요, {{ username }}님</span>
@@ -90,36 +101,22 @@
             {% endif %}
         </nav>
     </header>
-
     <div class="container">
-        <form action="/update/{{ todo.id }}" method="POST">
-            <p>
-                <label>ID: {{ todo.id }}</label>
-                <!-- ID는 수정 불가능하다고 가정 -->
-            </p>
-            <p>
-                <label for="title">Title:</label><br/>
-                <input type="text" id="title" name="title" value="{{ todo.title }}" required/>
-            </p>
-            <p>
-                <label for="description">Description:</label><br/>
-                <input type="text" id="description" name="description" value="{{ todo.description }}"/>
-            </p>
-            <p>
-                <label for="completed">Completed:</label>
-                <input
-                    type="checkbox"
-                    id="completed"
-                    name="completed"
-                    value="true"
-                    {% if todo.completed %}checked{% endif %}
-                />
-            </p>
-            <button type="submit">수정하기</button>
+        <form method="post" action="/update/{{ todo.id }}">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" value="{{ todo.title }}" required/>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required>{{ todo.description }}</textarea>
+            
+            <label class="checkbox-label">
+                <input type="checkbox" name="completed" value="true" {% if todo.completed %}checked{% endif %}/>
+                Completed
+            </label>
+            <input type="submit" value="수정"/>
         </form>
-
-        <hr/>
-        <a href="/">[메인으로]</a>
+        <br/>
+        <a class="button-style" href="/index">목록으로 돌아가기</a>
     </div>
 </body>
 </html>

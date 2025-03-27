@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
@@ -10,27 +9,23 @@ import json
 
 app = FastAPI()
 
-# 세션 비밀키 (실서비스는 안전하게 보관해야 함)
+# 세션 비밀키 (실서비스에서는 안전하게 보관)
 app.add_middleware(SessionMiddleware, secret_key="YOUR_SECRET_KEY_HERE")
 
-# 템플릿 설정
+# 템플릿 디렉토리 설정 (templates 폴더)
 templates = Jinja2Templates(directory="templates")
 
-# 정적 파일 (이미지가 필요하면 static 폴더에 이미지 저장 후 사용)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# ----------------------------
-#  User 모델 & JSON 관리 로직
-# ----------------------------
+# ------------------------------------
+#  User 모델 및 JSON 관리 로직
+# ------------------------------------
 class User(BaseModel):
     username: str
-    password: str  # 실제로는 해싱 필요
+    password: str  # 실제 서비스에서는 해싱 필요
     email: Optional[str] = None
 
 USER_DATA_FILE = "user_data.json"
 
 def load_users() -> List[User]:
-    """JSON 파일에서 사용자 목록 읽기."""
     if not os.path.exists(USER_DATA_FILE):
         save_users([])
         return []
@@ -39,30 +34,48 @@ def load_users() -> List[User]:
     return [User(**user) for user in data]
 
 def save_users(users: List[User]) -> None:
-    """사용자 목록을 JSON 파일에 저장."""
     data = [user.dict() for user in users]
     with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-# ----------------------------
-#  메인/홈 페이지
-# ----------------------------
-@app.get("/")
-def read_index(request: Request):
-    """메인 페이지"""
-    # 세션에서 로그인한 username 가져오기(없으면 None)
-    username = request.session.get("username")
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "username": username}
-    )
+# ------------------------------------
+#  Todo 모델 및 JSON 관리 로직
+#  (title, description, completed 필드 추가)
+# ------------------------------------
+class TodoItem(BaseModel):
+    id: int
+    username: str
+    title: str
+    description: str
+    completed: bool = False
 
-# ----------------------------
+TODO_DATA_FILE = "todo_data.json"
+
+def load_todos() -> List[TodoItem]:
+    if not os.path.exists(TODO_DATA_FILE):
+        save_todos([])
+        return []
+    with open(TODO_DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return [TodoItem(**item) for item in data]
+
+def save_todos(todos: List[TodoItem]) -> None:
+    data = [todo.dict() for todo in todos]
+    with open(TODO_DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+# ------------------------------------
+#  루트: 로그인 페이지로 리다이렉트
+# ------------------------------------
+@app.get("/")
+def root():
+    return RedirectResponse(url="/login")
+
+# ------------------------------------
 #  회원가입
-# ----------------------------
+# ------------------------------------
 @app.get("/register")
 def register_form(request: Request):
-    """회원가입 폼"""
     return templates.TemplateResponse("register.html", {"request": request})
 
 @app.post("/register")
@@ -72,94 +85,132 @@ def register_submit(
     password: str = Form(...),
     email: str = Form(None)
 ):
-    """회원가입 처리"""
     users = load_users()
-
-    # 이미 같은 username이 있는지 체크
     for u in users:
         if u.username == username:
-            # username 중복
             return templates.TemplateResponse(
                 "register.html",
-                {
-                    "request": request,
-                    "error_message": f"이미 존재하는 username입니다: {username}"
-                }
+                {"request": request, "error_message": f"이미 존재하는 username입니다: {username}"}
             )
-
-    # 새 유저 추가
     new_user = User(username=username, password=password, email=email)
     users.append(new_user)
     save_users(users)
-
-    # 회원가입 후 로그인 페이지로 이동
     return RedirectResponse(url="/login", status_code=303)
 
-# ----------------------------
+# ------------------------------------
 #  로그인 / 로그아웃
-# ----------------------------
+# ------------------------------------
 @app.get("/login")
 def login_form(request: Request):
-    """로그인 폼"""
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
 def login_submit(
     request: Request,
     username: str = Form(...),
-    password: str = Form(...)
+    password: str = Form(...),
 ):
-    """로그인 처리"""
     users = load_users()
-    # username & password 확인 (실서비스는 비밀번호 해시 검사)
     for u in users:
         if u.username == username and u.password == password:
-            # 로그인 성공 → 세션에 저장
             request.session["username"] = username
-            return RedirectResponse(url="/profile", status_code=303)
-
-    # 로그인 실패
+            return RedirectResponse(url="/index", status_code=303)
     return templates.TemplateResponse(
         "login.html",
-        {
-            "request": request,
-            "error_message": "아이디 또는 비밀번호가 틀렸습니다."
-        }
+        {"request": request, "error_message": "아이디 또는 비밀번호가 틀렸습니다."}
     )
 
 @app.get("/logout")
 def logout(request: Request):
-    """로그아웃 처리"""
-    request.session.clear()  # 세션 비우기
-    return RedirectResponse(url="/", status_code=303)
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=303)
 
-# ----------------------------
-#  로그인해야 볼 수 있는 페이지 예시
-# ----------------------------
-@app.get("/profile")
-def profile_page(request: Request):
-    """프로필 페이지 (로그인 필요)"""
+# ------------------------------------
+#  로그인 확인용 유틸리티 함수
+# ------------------------------------
+def get_current_username(request: Request) -> str:
     username = request.session.get("username")
     if not username:
-        # 로그인이 안되어 있다면 로그인 페이지로 리다이렉트
-        return RedirectResponse(url="/login")
+        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    return username
 
-    # 사용자 정보 불러오기
-    users = load_users()
-    current_user = None
-    for u in users:
-        if u.username == username:
-            current_user = u
+# ------------------------------------
+#  Todo CRUD 엔드포인트
+# ------------------------------------
+# Todo 목록 (index.html)
+@app.get("/index")
+def index(request: Request):
+    username = get_current_username(request)
+    todos = load_todos()
+    user_todos = [todo for todo in todos if todo.username == username]
+    return templates.TemplateResponse("index.html", {"request": request, "todos": user_todos, "username": username})
+
+# Todo 생성 (create.html)
+@app.get("/create")
+def create_form(request: Request):
+    username = get_current_username(request)
+    return templates.TemplateResponse("create.html", {"request": request, "username": username})
+
+@app.post("/create")
+def create_submit(request: Request, title: str = Form(...), description: str = Form(...)):
+    username = get_current_username(request)
+    todos = load_todos()
+    new_id = max([todo.id for todo in todos], default=0) + 1
+    new_todo = TodoItem(id=new_id, username=username, title=title, description=description, completed=False)
+    todos.append(new_todo)
+    save_todos(todos)
+    return RedirectResponse(url="/index", status_code=303)
+
+# Todo 상세보기 (detail view: /todos/{todo_id})
+@app.get("/todos/{todo_id}")
+def detail_view(request: Request, todo_id: int):
+    username = get_current_username(request)
+    todos = load_todos()
+    todo_item = next((todo for todo in todos if todo.id == todo_id and todo.username == username), None)
+    if not todo_item:
+        return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
+    return templates.TemplateResponse("detail.html", {"request": request, "todo": todo_item, "username": username})
+
+# Todo 수정 (update.html)
+@app.get("/update/{todo_id}")
+def update_form(request: Request, todo_id: int):
+    username = get_current_username(request)
+    todos = load_todos()
+    todo_item = next((todo for todo in todos if todo.id == todo_id and todo.username == username), None)
+    if not todo_item:
+        return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
+    return templates.TemplateResponse("update.html", {"request": request, "todo": todo_item, "username": username})
+
+@app.post("/update/{todo_id}")
+def update_submit(
+    request: Request,
+    todo_id: int,
+    title: str = Form(...),
+    description: str = Form(...),
+    completed: Optional[str] = Form(None)
+):
+    username = get_current_username(request)
+    todos = load_todos()
+    updated = False
+    for i, todo in enumerate(todos):
+        if todo.id == todo_id and todo.username == username:
+            todos[i].title = title
+            todos[i].description = description
+            todos[i].completed = True if completed == "true" else False
+            updated = True
             break
+    if not updated:
+        return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
+    save_todos(todos)
+    return RedirectResponse(url="/index", status_code=303)
 
-    if not current_user:
-        # 혹시 세션에 있는 username과 매칭되는 유저가 없으면
-        return RedirectResponse(url="/logout")
-
-    return templates.TemplateResponse(
-        "profile.html",
-        {
-            "request": request,
-            "user": current_user
-        }
-    )
+# Todo 삭제 (POST)
+@app.post("/delete/{todo_id}")
+def delete_todo(request: Request, todo_id: int):
+    username = get_current_username(request)
+    todos = load_todos()
+    new_todos = [todo for todo in todos if not (todo.id == todo_id and todo.username == username)]
+    if len(new_todos) == len(todos):
+        return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
+    save_todos(new_todos)
+    return RedirectResponse(url="/index", status_code=303)

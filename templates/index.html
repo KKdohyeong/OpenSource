@@ -12,7 +12,6 @@
             background: #fafafa;
             color: #333;
         }
-
         header {
             background: #5B8DEF;
             color: white;
@@ -22,11 +21,9 @@
             margin: 0;
             display: inline-block;
         }
-
-        /* 로그인/회원가입/로그아웃 등 헤더 메뉴 */
         nav {
             float: right;
-            margin-top: -2.2rem; /* 헤더 높이에 맞춰 위치 조정 (임의) */
+            margin-top: -2.2rem;
         }
         nav a {
             color: white;
@@ -36,15 +33,11 @@
         nav a:hover {
             opacity: 0.8;
         }
-
-        /* 메인 컨테이너 */
         .container {
             max-width: 800px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
-
-        /* 새 투두 만들기 링크 */
         .create-link {
             display: inline-block;
             margin-bottom: 1rem;
@@ -57,8 +50,6 @@
         .create-link:hover {
             opacity: 0.9;
         }
-
-        /* 테이블 스타일 */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -75,8 +66,6 @@
         th {
             font-weight: bold;
         }
-
-        /* 버튼 공통 스타일 */
         button, a.button-style {
             cursor: pointer;
             display: inline-block;
@@ -92,7 +81,6 @@
         button:hover {
             opacity: 0.9;
         }
-        /* 상세/수정 링크 스타일 */
         a.button-style {
             background: #5B8DEF;
             color: white;
@@ -101,14 +89,11 @@
         a.button-style:hover {
             opacity: 0.9;
         }
-
-        /* 한 줄에서 여러 액션 정렬을 위해 */
         .action-cell {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
         }
-
         form {
             margin: 0;
         }
@@ -130,16 +115,15 @@
             {% endif %}
         </nav>
     </header>
-
     <div class="container">
         <a class="create-link" href="/create">[새 투두 만들기]</a>
         <hr/>
-
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Title</th>
+                    <th>Description</th>
                     <th>Completed</th>
                     <th>Action</th>
                 </tr>
@@ -149,6 +133,7 @@
                 <tr>
                     <td>{{ todo.id }}</td>
                     <td>{{ todo.title }}</td>
+                    <td>{{ todo.description }}</td>
                     <td>{{ todo.completed }}</td>
                     <td class="action-cell">
                         <a class="button-style" href="/todos/{{ todo.id }}">상세</a>
@@ -157,6 +142,10 @@
                             <button type="submit">삭제</button>
                         </form>
                     </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">할 일이 없습니다.</td>
                 </tr>
             {% endfor %}
             </tbody>
