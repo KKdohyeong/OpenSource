@@ -34,7 +34,8 @@ def load_users() -> List[User]:
     return [User(**user) for user in data]
 
 def save_users(users: List[User]) -> None:
-    data = [user.dict() for user in users]
+    # Pydantic 2.x 이상에서는 dict() 대신 model_dump() 사용 권장
+    data = [user.model_dump() for user in users]
     with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -60,7 +61,7 @@ def load_todos() -> List[TodoItem]:
     return [TodoItem(**item) for item in data]
 
 def save_todos(todos: List[TodoItem]) -> None:
-    data = [todo.dict() for todo in todos]
+    data = [todo.model_dump() for todo in todos]
     with open(TODO_DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -76,7 +77,8 @@ def root():
 # ------------------------------------
 @app.get("/register")
 def register_form(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    # TemplateResponse -> 첫 번째 인자로 request 넣기
+    return templates.TemplateResponse(request, "register.html", {"request": request})
 
 @app.post("/register")
 def register_submit(
@@ -89,6 +91,7 @@ def register_submit(
     for u in users:
         if u.username == username:
             return templates.TemplateResponse(
+                request,
                 "register.html",
                 {"request": request, "error_message": f"이미 존재하는 username입니다: {username}"}
             )
@@ -102,7 +105,7 @@ def register_submit(
 # ------------------------------------
 @app.get("/login")
 def login_form(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html", {"request": request})
 
 @app.post("/login")
 def login_submit(
@@ -116,6 +119,7 @@ def login_submit(
             request.session["username"] = username
             return RedirectResponse(url="/index", status_code=303)
     return templates.TemplateResponse(
+        request,
         "login.html",
         {"request": request, "error_message": "아이디 또는 비밀번호가 틀렸습니다."}
     )
@@ -143,13 +147,17 @@ def index(request: Request):
     username = get_current_username(request)
     todos = load_todos()
     user_todos = [todo for todo in todos if todo.username == username]
-    return templates.TemplateResponse("index.html", {"request": request, "todos": user_todos, "username": username})
+    return templates.TemplateResponse(
+        request,
+        "index.html",
+        {"request": request, "todos": user_todos, "username": username}
+    )
 
 # Todo 생성 (create.html)
 @app.get("/create")
 def create_form(request: Request):
     username = get_current_username(request)
-    return templates.TemplateResponse("create.html", {"request": request, "username": username})
+    return templates.TemplateResponse(request, "create.html", {"request": request, "username": username})
 
 @app.post("/create")
 def create_submit(request: Request, title: str = Form(...), description: str = Form(...)):
@@ -169,7 +177,11 @@ def detail_view(request: Request, todo_id: int):
     todo_item = next((todo for todo in todos if todo.id == todo_id and todo.username == username), None)
     if not todo_item:
         return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
-    return templates.TemplateResponse("detail.html", {"request": request, "todo": todo_item, "username": username})
+    return templates.TemplateResponse(
+        request,
+        "detail.html",
+        {"request": request, "todo": todo_item, "username": username}
+    )
 
 # Todo 수정 (update.html)
 @app.get("/update/{todo_id}")
@@ -179,7 +191,11 @@ def update_form(request: Request, todo_id: int):
     todo_item = next((todo for todo in todos if todo.id == todo_id and todo.username == username), None)
     if not todo_item:
         return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
-    return templates.TemplateResponse("update.html", {"request": request, "todo": todo_item, "username": username})
+    return templates.TemplateResponse(
+        request,
+        "update.html",
+        {"request": request, "todo": todo_item, "username": username}
+    )
 
 @app.post("/update/{todo_id}")
 def update_submit(
@@ -196,7 +212,7 @@ def update_submit(
         if todo.id == todo_id and todo.username == username:
             todos[i].title = title
             todos[i].description = description
-            todos[i].completed = True if completed == "true" else False
+            todos[i].completed = (completed == "true")
             updated = True
             break
     if not updated:
