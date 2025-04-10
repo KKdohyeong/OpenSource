@@ -13,7 +13,10 @@ app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="YOUR_SECRET_KEY_HERE")
 
 # 템플릿 디렉토리 설정 (templates 폴더)
-templates = Jinja2Templates(directory="todo_app/templates")
+BASE_DIR = os.path.dirname(__file__)  # == todo_app
+templates = Jinja2Templates(
+    directory=os.path.join(BASE_DIR, "templates")
+)
 
 # ------------------------------------
 #  User 모델 및 JSON 관리 로직
