@@ -4,10 +4,14 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
+from prometheus_fastapi_instrumentator import Instrumentator
 import os
 import json
 
 app = FastAPI()
+
+# Prometheus 메트릭스 엔드포인트 (/metrics)
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # 세션 비밀키 (실서비스에서는 안전하게 보관)
 app.add_middleware(SessionMiddleware, secret_key="YOUR_SECRET_KEY_HERE")
