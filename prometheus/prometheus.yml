@@ -13,6 +13,7 @@ scrape_configs:
 
   # ────────────── cadvisor 잡 추가 ──────────────
   - job_name: 'cadvisor'
+    metrics_path: /metrics
     static_configs:
       - targets: ['cadvisor:8080']
   # ─────────────────────────────────────────────
