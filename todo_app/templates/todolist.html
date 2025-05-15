@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xml:lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>Todo List</title>
 </head>
 <body>
     <h2>{{ username }}님의 Todo List</h2>
-
-    <!-- ★ 현재 시간 -->
-    <p>현재 시간: {{ current_time }}</p>
 
     <form method="post" action="/add_todo">
         <input type="text" name="task" placeholder="새 할 일 입력" required>

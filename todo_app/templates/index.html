@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8"/>
     <title>Todo List</title>
@@ -33,6 +33,13 @@
         nav a:hover {
             opacity: 0.8;
         }
+        /* ★ 현재 시간 표시용 */
+        .clock {
+            margin-left: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
         .container {
             max-width: 800px;
             margin: 2rem auto;
@@ -113,8 +120,12 @@
                 <a href="/login">로그인</a>
                 <a href="/register">회원가입</a>
             {% endif %}
+
+            <!-- ★ 현재 시간 -->
+            <span class="clock">현재 시간: {{ current_time }}</span>
         </nav>
     </header>
+
     <div class="container">
         <a class="create-link" href="/create">[새 투두 만들기]</a>
         <hr/>

@@ -64,24 +64,6 @@ class TodoItem(BaseModel):
 TODO_DATA_FILE = "todo_data.json"
 
 
-@app.get("/index")
-def index(request: Request):
-    username = get_current_username(request)
-    todos = load_todos()
-    user_todos = [t for t in todos if t.username == username]
-
-    # ★ 현재 시간(문자열) 추가
-    current_time = datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
-
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "todos": user_todos,
-            "username": username,
-            "current_time": current_time,   # ← 전달
-        },
-    )
 
 def load_todos() -> List[TodoItem]:
     if not os.path.exists(TODO_DATA_FILE):
@@ -170,12 +152,27 @@ def get_current_username(request: Request) -> str:
 #  Todo CRUD 엔드포인트
 # ------------------------------------
 # Todo 목록 (index.html)
+# ------------------------------
+#  Todo 목록 (index.html)
+# ------------------------------
 @app.get("/index")
 def index(request: Request):
     username = get_current_username(request)
     todos = load_todos()
     user_todos = [todo for todo in todos if todo.username == username]
-    return templates.TemplateResponse("index.html", {"request": request, "todos": user_todos, "username": username})
+
+    # ★ 현재 시간(KST) 추가
+    current_time = datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "todos": user_todos,
+            "username": username,
+            "current_time": current_time,   # ← 템플릿에 전달
+        },
+    )
 
 # Todo 생성 (create.html)
 @app.get("/create")
