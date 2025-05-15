@@ -5,8 +5,13 @@ from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 from prometheus_fastapi_instrumentator import Instrumentator
+from datetime import datetime, timezone, timedelta
+
 import os
 import json
+
+KST = timezone(timedelta(hours=9))      # 한국 표준시용 타임존 객체
+
 
 app = FastAPI()
 
@@ -57,6 +62,26 @@ class TodoItem(BaseModel):
     completed: bool = False
 
 TODO_DATA_FILE = "todo_data.json"
+
+
+@app.get("/index")
+def index(request: Request):
+    username = get_current_username(request)
+    todos = load_todos()
+    user_todos = [t for t in todos if t.username == username]
+
+    # ★ 현재 시간(문자열) 추가
+    current_time = datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "todos": user_todos,
+            "username": username,
+            "current_time": current_time,   # ← 전달
+        },
+    )
 
 def load_todos() -> List[TodoItem]:
     if not os.path.exists(TODO_DATA_FILE):
