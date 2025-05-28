@@ -142,7 +142,6 @@ title=LoadTest_${__RandomString(5,abcdefghijklmnopqrstuvwxyz,)}&amp;description=
         </HTTPSamplerProxy>
         <hashTree/>
 
-        <>
       </hashTree>
     </hashTree>
   </hashTree>
