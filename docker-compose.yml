@@ -9,6 +9,21 @@ services:
     networks:
       - loadtest-net
 
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports: ["8086:8086"]
+    volumes:
+      - influxdb2-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
+      - DOCKER_INFLUXDB_INIT_ORG=temp
+      - DOCKER_INFLUXDB_INIT_BUCKET=default
+    networks:
+      - loadtest-net
+
   jmeter:
     build:
       context: ./jmeter
@@ -96,6 +111,7 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   grafana-data:
+  influxdb2-data:  
 networks:
   loadtest-net:
     external: true
