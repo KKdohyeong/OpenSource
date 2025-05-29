@@ -9,6 +9,12 @@ services:
     networks:
       - loadtest-net
 
+    environment:                      # ★ 추가
+      INFLUX_URL:      http://influxdb:8086
+      INFLUX_ORG:      temp
+      INFLUX_BUCKET:   default
+      INFLUX_TOKEN:    my-super-token
+
   influxdb:
     image: influxdb:2.7
     container_name: influxdb

@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from typing import Optional, List
 from prometheus_fastapi_instrumentator import Instrumentator
 from datetime import datetime, timezone, timedelta
+from metrics import latency_middleware, inc_counter
+
 
 import os
 import json
@@ -20,6 +22,8 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # 세션 비밀키 (실서비스에서는 안전하게 보관)
 app.add_middleware(SessionMiddleware, secret_key="YOUR_SECRET_KEY_HERE")
+app.middleware("http")(latency_middleware) 
+
 
 # 템플릿 디렉토리 설정 (templates 폴더)
 BASE_DIR = os.path.dirname(__file__)  # == todo_app
@@ -109,6 +113,9 @@ def register_submit(
     new_user = User(username=username, password=password, email=email)
     users.append(new_user)
     save_users(users)
+
+    inc_counter("user_registered_total")
+
     return RedirectResponse(url="/login", status_code=303)
 
 # ------------------------------------
@@ -188,6 +195,7 @@ def create_submit(request: Request, title: str = Form(...), description: str = F
     new_todo = TodoItem(id=new_id, username=username, title=title, description=description, completed=False)
     todos.append(new_todo)
     save_todos(todos)
+    inc_counter("todo_created_total", {"user": username})
     return RedirectResponse(url="/index", status_code=303)
 
 # Todo 상세보기 (detail view: /todos/{todo_id})
@@ -231,6 +239,9 @@ def update_submit(
     if not updated:
         return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
     save_todos(todos)
+
+    inc_counter("todo_updated_total", {"user": username})
+
     return RedirectResponse(url="/index", status_code=303)
 
 # Todo 삭제 (POST)
@@ -242,4 +253,7 @@ def delete_todo(request: Request, todo_id: int):
     if len(new_todos) == len(todos):
         return HTMLResponse("Todo 항목을 찾을 수 없습니다.", status_code=404)
     save_todos(new_todos)
+
+    inc_counter("todo_deleted_total", {"user": username})
+
     return RedirectResponse(url="/index", status_code=303)
