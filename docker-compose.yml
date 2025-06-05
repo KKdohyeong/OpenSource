@@ -1,86 +1,69 @@
-version: "3.7"         # 없어도 되지만 두어도 문제 없음
+version: "3.7"
+
 services:
   fastapi-app:
     build:
       context: ./todo_app
     container_name: fastapi-app
-    ports:
-      - "5001:5001"
-    depends_on:
-      - loki
-    environment:
-      - LOKI_ENDPOINT=http://loki:3100/loki/api/v1/push
-
-    environment:                      # ★ 추가
-      INFLUX_URL:      http://influxdb:8086
-      INFLUX_ORG:      temp
-      INFLUX_BUCKET:   default
-      INFLUX_TOKEN:    my-super-token
+    ports: ["5001:5001"]
+    depends_on: [loki]
+    environment:          # ← 하나로 합침
+      LOKI_ENDPOINT:  http://loki:3100/loki/api/v1/push
+      INFLUX_URL:     http://influxdb:8086
+      INFLUX_ORG:     temp
+      INFLUX_BUCKET:  default
+      INFLUX_TOKEN:   my-super-token
 
   influxdb:
     image: influxdb:2.7
     container_name: influxdb
     ports: ["8086:8086"]
-    volumes:
-      - influxdb2-data:/var/lib/influxdb2
+    volumes: [influxdb2-data:/var/lib/influxdb2]
     environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
-      - DOCKER_INFLUXDB_INIT_ORG=temp
-      - DOCKER_INFLUXDB_INIT_BUCKET=default
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-token
-    networks:
-      - loadtest-net
+      DOCKER_INFLUXDB_INIT_MODE:            setup
+      DOCKER_INFLUXDB_INIT_USERNAME:        admin
+      DOCKER_INFLUXDB_INIT_PASSWORD:        admin123
+      DOCKER_INFLUXDB_INIT_ORG:             temp
+      DOCKER_INFLUXDB_INIT_BUCKET:          default
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN:     my-super-token
+    networks: [loadtest-net]
 
   jmeter:
-    build:
-      context: ./jmeter
-      dockerfile: Dockerfile
+    build: ./jmeter
     container_name: jmeter
-    volumes:
-      - ./jmeter:/jmeter
+    ports: ["9270:9270"]
+    volumes: ["./jmeter:/jmeter"]
     command:
       - jmeter
       - -n
-      - -t
-      - /jmeter/fastapi_test_plan.jmx
-      - -l
-      - /jmeter/results.jtl
+      - -t /jmeter/fastapi_test_plan.jmx
+      - -l /jmeter/results.jtl
       - -JBASE_URL=http://fastapi-app:5001
       - -Jjmeter.save.saveservice.output_format=csv
-      - -e
-      - -o
-      - /jmeter/report
-    networks:
-      - loadtest-net
+      - -e -o /jmeter/report
+    networks: [loadtest-net]
 
-  # ────────────── cAdvisor 추가 ──────────────
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    privileged: true
     restart: unless-stopped
-    privileged: true                    # cgroup v2 환경이면 필수
-    ports:
-      - "7000:8080"
+    ports: ["7000:8080"]
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - loadtest-net
-  # ───────────────────────────────────────────
+    networks: [loadtest-net]
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports: ["3000:3000"]
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
     volumes: [grafana-data:/var/lib/grafana]
-    networks:
-      - loadtest-net
+    networks: [loadtest-net]
 
   prometheus:
     image: prom/prometheus:latest
@@ -88,37 +71,33 @@ services:
     ports: ["9090:9090"]
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-    networks:
-      - loadtest-net
-  
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    networks: [loadtest-net]
+
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports: ["9100:9100"]
-    networks:
-      - loadtest-net    
+    networks: [loadtest-net]
 
   sonarqube:
     image: sonarqube:latest
     container_name: sonarqube
     ports: ["9000:9000"]
     environment:
-      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     volumes:
       - sonarqube_conf:/opt/sonarqube/conf
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_extensions:/opt/sonarqube/extensions
-    networks:
-      - loadtest-net          
-  
-    loki:
+    networks: [loadtest-net]
+
+  loki:                       # ← 들여쓰기 고침 (최상위 서비스)
     image: grafana/loki:latest
     container_name: loki
-    ports:
-      - "3100:3100"  
+    ports: ["3100:3100"]
+    networks: [loadtest-net]
 
 volumes:
   sonarqube_conf:
@@ -126,7 +105,8 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   grafana-data:
-  influxdb2-data:  
+  influxdb2-data:
+
 networks:
   loadtest-net:
-    external: true
+    external: true            # 이미 만든 외부 네트워크라면 유지, 없다면 제거
