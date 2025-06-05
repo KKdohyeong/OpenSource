@@ -21,7 +21,7 @@ KST = timezone(timedelta(hours=9))      # 한국 표준시용 타임존 객체
 
 
 app = FastAPI()
-
+app.middleware("http")(log_requests)
 # Prometheus 메트릭스 엔드포인트 (/metrics)
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
