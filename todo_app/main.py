@@ -7,9 +7,12 @@ from typing import Optional, List
 from prometheus_fastapi_instrumentator import Instrumentator
 from datetime import datetime, timezone, timedelta
 from metrics import latency_middleware, inc_counter
+import logging
+import time
+from multiprocessing import Queue
+from os import getenv
+from fastapi import Request
 from logging_loki import LokiQueueHandler
-from queue import Queue
-
 
 import os
 import json
