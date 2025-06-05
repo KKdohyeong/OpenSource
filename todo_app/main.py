@@ -7,7 +7,7 @@ from typing import Optional, List
 from prometheus_fastapi_instrumentator import Instrumentator
 from datetime import datetime, timezone, timedelta
 from metrics import latency_middleware, inc_counter
-
+from logging_loki import LokiQueueHandler
 
 import os
 import json
