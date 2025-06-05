@@ -41,3 +41,4 @@ uvicorn==0.34.0
 influxdb-client==1.40.0
 prometheus-fastapi-instrumentator
 prometheus-client
+python-logging-loki==0.3.1
